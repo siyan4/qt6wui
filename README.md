@@ -29,3 +29,20 @@ The Qt-based libraries for developing applications of Web User Interface.
 |   /usr/lib/x86_64-linux-gnu/libQt6Gui.so.6.8.2   |   /usr/local/lib/x86_64-linux-gnu/libQt6Wui.so.6.8.2   |
 | /usr/lib/x86_64-linux-gnu/libQt6Widgets.so.6.8.2 | /usr/local/lib/x86_64-linux-gnu/libQt6Webgets.so.6.8.2 |
 |                                                  |                                                        |
+
+## Prepare Source Code
+```
+sudo apt autopurge
+sudo apt autoclean
+sudo apt update
+
+apt source libqt6gui6
+
+sed -i 's/AUTODETECT OFF/AUTODETECT ON/g' qt6-base-6.8.2+dfsg/src/plugins/sqldrivers/configure.cmake
+find qt6-base-6.8.2+dfsg -type f -exec sed -i 's/cmake_minimum_required(VERSION 3.../cmake_minimum_required(VERSION 3.28/g' {} \;
+find qt6-base-6.8.2+dfsg -type f -exec sed -i 's/cmake_minimum_required(VERSION 3......3...)/cmake_minimum_required(VERSION 3.28...3.31)/g' {} \;
+sed -i 's/\(Using system provided SQLite\) ......... no/\1 ......... yes/g' qt6-base-6.8.2+dfsg/src/sql/doc/snippets/code/doc_src_sql-driver.qdoc
+
+mkdir qt6-base-6.8.2+dfsg/src/wui
+git clone git@github.com:siyan4/qt6wui.git qt6-base-6.8.2+dfsg/src/wui
+```
