@@ -45,4 +45,6 @@ sed -i 's/\(Using system provided SQLite\) ......... no/\1 ......... yes/g' qt6-
 
 mkdir qt6-base-6.8.2+dfsg/src/wui
 git clone git@github.com:siyan4/qt6wui.git qt6-base-6.8.2+dfsg/src/wui
+env QT_DEBUG_PLUGINS=1 QT_STYLE_DEBUG=1 QT_QPA_PLATFORM=web QT_QPA_PLATFORMTHEME=gtk3 QT_STYLE_OVERRIDE=fusion ../untitled/build/Desktop-Debug/untitled
+env QT_DEBUG_PLUGINS=1 QT_STYLE_DEBUG=1 QT_QPA_PLATFORM=WEB QT_QPA_PLATFORMTHEME=gtk3 QT_STYLE_OVERRIDE=kvantum ../untitled/build/Desktop-Debug/untitled
 ```
