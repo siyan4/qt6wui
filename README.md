@@ -30,6 +30,55 @@ The Qt-based libraries for developing applications of Web User Interface.
 | /usr/lib/x86_64-linux-gnu/libQt6Widgets.so.6.8.2 | /usr/local/lib/x86_64-linux-gnu/libQt6Webgets.so.6.8.2 |
 |                                                  |                                                        |
 
+## QT_QPA_PLATFORM Implementation
+```
+#include <unistd.h>
+
+template <typename T>
+T* rgba64_pixel_data_ptr(QImage& img, int x, int y) {
+    if(Q_UNLIKELY(!img.valid(x, y))) return nullptr;
+    return reinterpret_cast<T*>(
+        img.scanLine(y) + x * sizeof(quint64)
+        );
+}
+
+    QPaintEngine *createImagePaintEngine(QPaintDevice *paintDevice) const override {
+        QImage mImage;
+        if (void *data = nullptr; !posix_memalign(&data, sysconf(_SC_PAGESIZE), sysconf(_SC_PAGESIZE)))
+            mImage = QImage(static_cast<uchar *>(data),
+                                   sysconf(_SC_LEVEL1_DCACHE_LINESIZE)/sizeof(quint64),
+                                   sysconf(_SC_PAGESIZE)/sysconf(_SC_LEVEL1_DCACHE_LINESIZE),
+                                   sysconf(_SC_LEVEL1_DCACHE_LINESIZE),
+                                   QImage::Format_RGBA64,
+                                   std::free,
+                                   data);
+        qDebug() << "Page is aligned:" << (( reinterpret_cast<uintptr_t>(mImage.constBits()) % sysconf(_SC_PAGESIZE) == 0) ? "Yes" : "No");
+        qDebug() << "mImage &data is" << reinterpret_cast<uintptr_t>(mImage.constBits());
+        int i {0};
+        qDebug() << "Address of i is" << reinterpret_cast<uintptr_t>(&i);
+        for (int y = 0; y < mImage.height(); y++) {
+            for(int x = 0; x < mImage.width(); x++) {
+                //*(reinterpret_cast<int **>(mImage.scanLine(y)) + x) = &i;
+                if(auto* ptr = rgba64_pixel_data_ptr<int *>(mImage, x, y)) {
+                    //*ptr = &i;
+                    *ptr = nullptr;
+                }
+                *rgba64_pixel_data_ptr<int *>(mImage, 0, 0) = &i;
+                //*(reinterpret_cast<int **>(mImage.scanLine(0)) + 0) = &i;
+                qDebug() << "Address(" << i++ << ")"
+                         << reinterpret_cast<uintptr_t>(rgba64_pixel_data_ptr<int *>(mImage, x, y))
+                         << "is <"
+                         << (*rgba64_pixel_data_ptr<int *>(mImage, x, y) == nullptr ? "nullptr >" : "not nullptr >")
+                         << "and content is"
+                         << reinterpret_cast<uintptr_t>(*rgba64_pixel_data_ptr<int *>(mImage, x, y));
+            }
+        }
+
+        qDebug() << "Creating a QMasterBoostEngine in QWebIntegration";
+        return new QMasterBoostEngine(paintDevice);
+    };
+```
+
 ## Prepare Source Code
 ```
 sudo apt autopurge
@@ -47,4 +96,5 @@ mkdir qt6-base-6.8.2+dfsg/src/wui
 git clone git@github.com:siyan4/qt6wui.git qt6-base-6.8.2+dfsg/src/wui
 env QT_DEBUG_PLUGINS=1 QT_STYLE_DEBUG=1 QT_QPA_PLATFORM=web QT_QPA_PLATFORMTHEME=gtk3 QT_STYLE_OVERRIDE=fusion ../untitled/build/Desktop-Debug/untitled
 env QT_DEBUG_PLUGINS=1 QT_STYLE_DEBUG=1 QT_QPA_PLATFORM=WEB QT_QPA_PLATFORMTHEME=gtk3 QT_STYLE_OVERRIDE=kvantum ../untitled/build/Desktop-Debug/untitled
+env QT_DEBUG_PLUGINS=1 QT_STYLE_DEBUG=1 QT_QPA_PLATFORM=WEB QT_QPA_PLATFORMTHEME=wtk4 QT_STYLE_OVERRIDE=bootstrap5 ../untitled/build/Desktop-Debug/untitled
 ```
