@@ -65,6 +65,7 @@ T* rgbaxy_pixel_data_ptr(QImage& img, int x, int y) {
                     //*ptr = &i;
                     *ptr = nullptr;
                 }
+                if (!(x + y))
                 *rgbaxy_pixel_data_ptr<int *>(mImage, 0, 0) = &i;
                 //*(reinterpret_cast<int **>(mImage.scanLine(0)) + 0) = &i;
                 qDebug() << "Address(" << i++ << ")"
