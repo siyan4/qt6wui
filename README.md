@@ -35,10 +35,10 @@ The Qt-based libraries for developing applications of Web User Interface.
 #include <unistd.h>
 
 template <typename T>
-T* rgba64_pixel_data_ptr(QImage& img, int x, int y) {
+T* rgbaxy_pixel_data_ptr(QImage& img, int x, int y) {
     if(Q_UNLIKELY(!img.valid(x, y))) return nullptr;
     return reinterpret_cast<T*>(
-        img.scanLine(y) + x * sizeof(quint64)
+        img.scanLine(y) + x * sizeof(void*)
         );
 }
 
@@ -46,31 +46,33 @@ T* rgba64_pixel_data_ptr(QImage& img, int x, int y) {
         QImage mImage;
         if (void *data = nullptr; !posix_memalign(&data, sysconf(_SC_PAGESIZE), sysconf(_SC_PAGESIZE)))
             mImage = QImage(static_cast<uchar *>(data),
-                                   sysconf(_SC_LEVEL1_DCACHE_LINESIZE)/sizeof(quint64),
+                                   sysconf(_SC_LEVEL1_DCACHE_LINESIZE)/sizeof(void*),
                                    sysconf(_SC_PAGESIZE)/sysconf(_SC_LEVEL1_DCACHE_LINESIZE),
                                    sysconf(_SC_LEVEL1_DCACHE_LINESIZE),
-                                   QImage::Format_RGBA64,
+                                   sizeof(quint64) == sizeof(void*) ?
+                                       QImage::Format_RGBA64 : QImage::Format_ARGB32,
                                    std::free,
                                    data);
-        qDebug() << "Page is aligned:" << (( reinterpret_cast<uintptr_t>(mImage.constBits()) % sysconf(_SC_PAGESIZE) == 0) ? "Yes" : "No");
+        qDebug() << "Page is aligned:" << (( reinterpret_cast<uintptr_t>(mImage.constBits()) %
+                                                sysconf(_SC_PAGESIZE) == 0) ? "Yes" : "No");
         qDebug() << "mImage &data is" << reinterpret_cast<uintptr_t>(mImage.constBits());
         int i {0};
         qDebug() << "Address of i is" << reinterpret_cast<uintptr_t>(&i);
         for (int y = 0; y < mImage.height(); y++) {
             for(int x = 0; x < mImage.width(); x++) {
                 //*(reinterpret_cast<int **>(mImage.scanLine(y)) + x) = &i;
-                if(auto* ptr = rgba64_pixel_data_ptr<int *>(mImage, x, y)) {
+                if(auto* ptr = rgbaxy_pixel_data_ptr<int *>(mImage, x, y)) {
                     //*ptr = &i;
                     *ptr = nullptr;
                 }
-                *rgba64_pixel_data_ptr<int *>(mImage, 0, 0) = &i;
+                *rgbaxy_pixel_data_ptr<int *>(mImage, 0, 0) = &i;
                 //*(reinterpret_cast<int **>(mImage.scanLine(0)) + 0) = &i;
                 qDebug() << "Address(" << i++ << ")"
-                         << reinterpret_cast<uintptr_t>(rgba64_pixel_data_ptr<int *>(mImage, x, y))
+                         << reinterpret_cast<uintptr_t>(rgbaxy_pixel_data_ptr<int *>(mImage, x, y))
                          << "is <"
-                         << (*rgba64_pixel_data_ptr<int *>(mImage, x, y) == nullptr ? "nullptr >" : "not nullptr >")
+                         << (*rgbaxy_pixel_data_ptr<int *>(mImage, x, y) == nullptr ? "nullptr >" : "not nullptr >")
                          << "and content is"
-                         << reinterpret_cast<uintptr_t>(*rgba64_pixel_data_ptr<int *>(mImage, x, y));
+                         << reinterpret_cast<uintptr_t>(*rgbaxy_pixel_data_ptr<int *>(mImage, x, y));
             }
         }
 
