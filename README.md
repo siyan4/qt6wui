@@ -102,4 +102,5 @@ env QT_DEBUG_PLUGINS=1 QT_STYLE_DEBUG=1 QT_QPA_PLATFORM=Web QT_QPA_PLATFORMTHEME
 env QT_DEBUG_PLUGINS=1 QT_STYLE_DEBUG=1 QT_QPA_PLATFORM=WEB QT_QPA_PLATFORMTHEME=wtk4 QT_STYLE_OVERRIDE=bootstrap5 ./build/Desktop-Debug/untitled
 env QT_DEBUG_PLUGINS=1 QT_STYLE_DEBUG=1 QT_QPA_PLATFORM=webland QT_QPA_PLATFORMTHEME=angular QT_STYLE_OVERRIDE=bootstrap5 ./build/Desktop-Debug/untitled
 env QT_DEBUG_PLUGINS=1 QT_STYLE_DEBUG=1 QT_LOGGING_RULES="qt.qpa.webland.*=true" WAYLAND_DEBUG=1 QT_QPA_PLATFORM_PLUGIN_PATH=build/Desktop-Debug/lib/x86_64-linux-gnu/qt6/plugins/platforms QT_QPA_PLATFORM=webland QT_QPA_PLATFORMTHEME=angular QT_STYLE_OVERRIDE=bootstrap5 ./build/Desktop-Debug/untitled
+env QT_DEBUG_PLUGINS=1 QT_STYLE_DEBUG=1 QT_LOGGING_RULES="qt.qpa.webside.*=true" WAYLAND_DEBUG=1 QT_QPA_PLATFORM_PLUGIN_PATH=build/Desktop-Debug/lib/x86_64-linux-gnu/qt6/plugins/platforms QT_QPA_PLATFORM=webside QT_QPA_PLATFORMTHEME=angular QT_STYLE_OVERRIDE=bootstrap5 ./build/Desktop-Debug/untitled
 ```
